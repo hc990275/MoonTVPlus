@@ -28,21 +28,23 @@ export async function GET(request: NextRequest) {
       // 获取所有剧集
       const allEpisodes = await client.getEpisodes(itemId);
 
-      episodes = allEpisodes
-        .sort((a, b) => {
-          if (a.ParentIndexNumber !== b.ParentIndexNumber) {
-            return (a.ParentIndexNumber || 0) - (b.ParentIndexNumber || 0);
-          }
-          return (a.IndexNumber || 0) - (b.IndexNumber || 0);
-        })
-        .map((ep) => ({
-          id: ep.Id,
-          title: ep.Name,
-          episode: ep.IndexNumber || 0,
-          season: ep.ParentIndexNumber || 1,
-          overview: ep.Overview || '',
-          playUrl: client.getStreamUrl(ep.Id),
-        }));
+      episodes = await Promise.all(
+        allEpisodes
+          .sort((a, b) => {
+            if (a.ParentIndexNumber !== b.ParentIndexNumber) {
+              return (a.ParentIndexNumber || 0) - (b.ParentIndexNumber || 0);
+            }
+            return (a.IndexNumber || 0) - (b.IndexNumber || 0);
+          })
+          .map(async (ep) => ({
+            id: ep.Id,
+            title: ep.Name,
+            episode: ep.IndexNumber || 0,
+            season: ep.ParentIndexNumber || 1,
+            overview: ep.Overview || '',
+            playUrl: await client.getStreamUrl(ep.Id),
+          }))
+      );
     }
 
     return NextResponse.json({
@@ -55,7 +57,7 @@ export async function GET(request: NextRequest) {
         poster: client.getImageUrl(item.Id, 'Primary'),
         year: item.ProductionYear?.toString() || '',
         rating: item.CommunityRating || 0,
-        playUrl: item.Type === 'Movie' ? client.getStreamUrl(item.Id) : undefined,
+        playUrl: item.Type === 'Movie' ? await client.getStreamUrl(item.Id) : undefined,
       },
       episodes: item.Type === 'Series' ? episodes : [],
     });

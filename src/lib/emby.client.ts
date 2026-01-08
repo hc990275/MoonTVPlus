@@ -7,6 +7,10 @@ interface EmbyConfig {
   Password?: string;
   UserId?: string;
   AuthToken?: string;
+  // 高级流媒体选项
+  removeEmbyPrefix?: boolean;
+  appendMediaSourceId?: boolean;
+  transcodeMp4?: boolean;
 }
 
 interface EmbyItem {
@@ -64,13 +68,28 @@ export class EmbyClient {
   private authToken?: string;
   private username?: string;
   private password?: string;
+  private removeEmbyPrefix: boolean;
+  private appendMediaSourceId: boolean;
+  private transcodeMp4: boolean;
 
   constructor(config: EmbyConfig) {
     let serverUrl = config.ServerURL.replace(/\/$/, '');
-    // 如果 URL 不包含 /emby 路径，自动添加
-    if (!serverUrl.endsWith('/emby')) {
+
+    // 存储高级选项
+    this.removeEmbyPrefix = config.removeEmbyPrefix || false;
+    this.appendMediaSourceId = config.appendMediaSourceId || false;
+    this.transcodeMp4 = config.transcodeMp4 || false;
+
+    // 如果 URL 不包含 /emby 路径，自动添加（除非启用了 removeEmbyPrefix）
+    if (!serverUrl.endsWith('/emby') && !this.removeEmbyPrefix) {
       serverUrl += '/emby';
     }
+
+    // 如果启用了 removeEmbyPrefix 且 URL 包含 /emby，移除它
+    if (this.removeEmbyPrefix && serverUrl.endsWith('/emby')) {
+      serverUrl = serverUrl.slice(0, -5); // Remove '/emby'
+    }
+
     this.serverUrl = serverUrl;
     this.apiKey = config.ApiKey;
     this.userId = config.UserId;
@@ -82,6 +101,11 @@ export class EmbyClient {
     console.log('[EmbyClient] constructor - ApiKey:', this.apiKey);
     console.log('[EmbyClient] constructor - UserId:', this.userId);
     console.log('[EmbyClient] constructor - AuthToken:', this.authToken);
+    console.log('[EmbyClient] constructor - Advanced Options:', {
+      removeEmbyPrefix: this.removeEmbyPrefix,
+      appendMediaSourceId: this.appendMediaSourceId,
+      transcodeMp4: this.transcodeMp4,
+    });
   }
 
   private async ensureAuthenticated(): Promise<void> {
@@ -437,11 +461,91 @@ export class EmbyClient {
     return `${this.serverUrl}/Items/${itemId}/Images/${imageType}${queryString ? '?' + queryString : ''}`;
   }
 
-  getStreamUrl(itemId: string, direct: boolean = true): string {
-    if (direct) {
-      return `${this.serverUrl}/Videos/${itemId}/stream?Static=true&api_key=${this.apiKey || this.authToken}`;
+  /**
+   * 获取 PlaybackInfo 以获取 MediaSourceId
+   */
+  async getPlaybackInfo(itemId: string): Promise<{ MediaSourceId?: string }> {
+    await this.ensureAuthenticated();
+
+    if (!this.userId) {
+      throw new Error('未配置 Emby 用户 ID');
     }
-    return `${this.serverUrl}/Videos/${itemId}/master.m3u8?api_key=${this.apiKey || this.authToken}`;
+
+    const token = this.apiKey || this.authToken;
+    const url = `${this.serverUrl}/Items/${itemId}/PlaybackInfo?UserId=${this.userId}${token ? `&api_key=${token}` : ''}`;
+
+    console.log('[EmbyClient] getPlaybackInfo - URL:', url);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({
+          DeviceProfile: {
+            MaxStreamingBitrate: 120000000,
+            MaxStaticBitrate: 100000000,
+            MusicStreamingTranscodingBitrate: 384000,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('[EmbyClient] getPlaybackInfo failed:', response.status);
+        return {};
+      }
+
+      const data = await response.json();
+      const mediaSourceId = data.MediaSources?.[0]?.Id;
+
+      console.log('[EmbyClient] getPlaybackInfo - MediaSourceId:', mediaSourceId);
+
+      return { MediaSourceId: mediaSourceId };
+    } catch (error) {
+      console.error('[EmbyClient] getPlaybackInfo error:', error);
+      return {};
+    }
+  }
+
+  async getStreamUrl(itemId: string, direct: boolean = true): Promise<string> {
+    const token = this.apiKey || this.authToken;
+    let url: string;
+
+    console.log('[EmbyClient] getStreamUrl - itemId:', itemId, 'direct:', direct);
+    console.log('[EmbyClient] getStreamUrl - Options:', {
+      appendMediaSourceId: this.appendMediaSourceId,
+      transcodeMp4: this.transcodeMp4,
+    });
+
+    if (direct) {
+      // 选项3: 转码mp4
+      if (this.transcodeMp4) {
+        url = `${this.serverUrl}/Videos/${itemId}/stream.mp4?api_key=${token}`;
+      } else {
+        url = `${this.serverUrl}/Videos/${itemId}/stream?Static=true&api_key=${token}`;
+      }
+
+      // 选项2: 拼接MediaSourceId参数
+      if (this.appendMediaSourceId) {
+        console.log('[EmbyClient] getStreamUrl - Attempting to get MediaSourceId...');
+        try {
+          const playbackInfo = await this.getPlaybackInfo(itemId);
+          if (playbackInfo.MediaSourceId) {
+            url += `&MediaSourceId=${playbackInfo.MediaSourceId}`;
+            console.log('[EmbyClient] getStreamUrl - MediaSourceId appended:', playbackInfo.MediaSourceId);
+          } else {
+            console.log('[EmbyClient] getStreamUrl - No MediaSourceId returned from PlaybackInfo');
+          }
+        } catch (error) {
+          console.error('[EmbyClient] Failed to get MediaSourceId:', error);
+          // 继续使用不带 MediaSourceId 的 URL
+        }
+      }
+    } else {
+      url = `${this.serverUrl}/Videos/${itemId}/master.m3u8?api_key=${token}`;
+    }
+
+    console.log('[EmbyClient] getStreamUrl - Final URL:', url);
+    return url;
   }
 
   getSubtitles(item: EmbyItem): Array<{ url: string; language: string; label: string }> {

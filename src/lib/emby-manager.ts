@@ -18,6 +18,10 @@ interface EmbySourceConfig {
   LastSyncTime?: number;
   ItemCount?: number;
   isDefault?: boolean;
+  // 高级流媒体选项
+  removeEmbyPrefix?: boolean;
+  appendMediaSourceId?: boolean;
+  transcodeMp4?: boolean;
 }
 
 class EmbyManager {
@@ -174,6 +178,10 @@ export function migrateEmbyConfig(config: AdminConfig): AdminConfig {
         LastSyncTime: oldConfig.LastSyncTime,
         ItemCount: oldConfig.ItemCount,
         isDefault: true,
+        // 高级选项默认值
+        removeEmbyPrefix: false,
+        appendMediaSourceId: false,
+        transcodeMp4: false,
       }],
     };
   }

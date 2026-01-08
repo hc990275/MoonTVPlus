@@ -3426,6 +3426,10 @@ const EmbyConfigComponent = ({
     Password: '',
     UserId: '',
     isDefault: false,
+    // 高级选项
+    removeEmbyPrefix: false,
+    appendMediaSourceId: false,
+    transcodeMp4: false,
   });
 
   // 从配置加载源列表
@@ -3460,6 +3464,10 @@ const EmbyConfigComponent = ({
       Password: '',
       UserId: '',
       isDefault: false,
+      // 高级选项
+      removeEmbyPrefix: false,
+      appendMediaSourceId: false,
+      transcodeMp4: false,
     });
     setEditingSource(null);
     setShowAddForm(false);
@@ -3910,6 +3918,85 @@ const EmbyConfigComponent = ({
                   }`}
                 />
               </button>
+            </div>
+
+            {/* 高级选项 */}
+            <div className='border-t border-gray-200 dark:border-gray-700 pt-4 mt-4'>
+              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
+                高级选项
+              </h4>
+
+              {/* 选项1: 播放链接移除/emby前缀 */}
+              <div className='flex items-center justify-between mb-3'>
+                <div className='flex-1'>
+                  <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                    播放链接移除/emby前缀
+                  </label>
+                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                    启用后将从播放链接中移除 /emby 前缀
+                  </p>
+                </div>
+                <button
+                  onClick={() => setFormData({ ...formData, removeEmbyPrefix: !formData.removeEmbyPrefix })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    formData.removeEmbyPrefix ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.removeEmbyPrefix ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* 选项2: 拼接MediaSourceId参数 */}
+              <div className='flex items-center justify-between mb-3'>
+                <div className='flex-1'>
+                  <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                    拼接MediaSourceId参数
+                  </label>
+                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                    启用后将调用 PlaybackInfo API 获取 MediaSourceId 并添加到播放链接
+                  </p>
+                </div>
+                <button
+                  onClick={() => setFormData({ ...formData, appendMediaSourceId: !formData.appendMediaSourceId })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    formData.appendMediaSourceId ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.appendMediaSourceId ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* 选项3: 转码mp4 */}
+              <div className='flex items-center justify-between mb-3'>
+                <div className='flex-1'>
+                  <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                    转码mp4
+                  </label>
+                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                    启用后将使用 stream.mp4 格式并移除 Static 参数
+                  </p>
+                </div>
+                <button
+                  onClick={() => setFormData({ ...formData, transcodeMp4: !formData.transcodeMp4 })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    formData.transcodeMp4 ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.transcodeMp4 ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
 
             {/* 操作按钮 */}

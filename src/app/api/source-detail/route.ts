@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
           year: item.ProductionYear?.toString() || '',
           douban_id: 0,
           desc: item.Overview || '',
-          episodes: [client.getStreamUrl(item.Id)],
+          episodes: [await client.getStreamUrl(item.Id)],
           episodes_titles: [item.Name],
           subtitles: subtitles.length > 0 ? [subtitles] : [],
           proxyMode: false,
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
           year: item.ProductionYear?.toString() || '',
           douban_id: 0,
           desc: item.Overview || '',
-          episodes: allEpisodes.map((ep) => client.getStreamUrl(ep.Id)),
+          episodes: await Promise.all(allEpisodes.map((ep) => client.getStreamUrl(ep.Id))),
           episodes_titles: allEpisodes.map((ep) => {
             const seasonNum = ep.ParentIndexNumber || 1;
             const episodeNum = ep.IndexNumber || 1;
