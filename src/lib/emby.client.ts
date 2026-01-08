@@ -444,15 +444,8 @@ export class EmbyClient {
 
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: 'GET',
         headers: this.getHeaders(),
-        body: JSON.stringify({
-          DeviceProfile: {
-            MaxStreamingBitrate: 120000000,
-            MaxStaticBitrate: 100000000,
-            MusicStreamingTranscodingBitrate: 384000,
-          },
-        }),
       });
 
       if (!response.ok) {
