@@ -48,7 +48,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const rootPath = openListConfig.RootPath || '/';
     const client = new OpenListClient(
       openListConfig.URL,
       openListConfig.Username,
@@ -62,7 +61,7 @@ export async function GET(request: NextRequest) {
     if (noCache) {
       // noCache 模式：跳过缓存
     } else {
-      metaInfo = getCachedMetaInfo(rootPath);
+      metaInfo = getCachedMetaInfo();
     }
 
     if (!metaInfo) {
@@ -83,7 +82,7 @@ export async function GET(request: NextRequest) {
 
             // 只有在不是 noCache 模式时才更新缓存
             if (!noCache) {
-              setCachedMetaInfo(rootPath, metaInfo);
+              setCachedMetaInfo(metaInfo);
             }
           } catch (parseError) {
             console.error('[OpenList List] JSON 解析或验证失败:', parseError);

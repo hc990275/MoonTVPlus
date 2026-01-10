@@ -106,7 +106,8 @@ export interface AdminConfig {
     URL: string; // OpenList 服务器地址
     Username: string; // 账号（用于登录获取Token）
     Password: string; // 密码（用于登录获取Token）
-    RootPath: string; // 根目录路径，默认 "/"
+    RootPath?: string; // 旧字段：根目录路径（向后兼容，迁移后删除）
+    RootPaths?: string[]; // 新字段：多根目录路径列表
     OfflineDownloadPath: string; // 离线下载目录，默认 "/"
     LastRefreshTime?: number; // 上次刷新时间戳
     ResourceCount?: number; // 资源数量

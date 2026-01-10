@@ -268,14 +268,14 @@ async function handleOpenListProxy(request: NextRequest) {
   );
 
   // 读取 metainfo (从数据库或缓存)
-  let metaInfo: MetaInfo | null = getCachedMetaInfo(rootPath);
+  let metaInfo: MetaInfo | null = getCachedMetaInfo();
 
   if (!metaInfo) {
     try {
       const metainfoJson = await db.getGlobalValue('video.metainfo');
       if (metainfoJson) {
         metaInfo = JSON.parse(metainfoJson) as MetaInfo;
-        setCachedMetaInfo(rootPath, metaInfo);
+        setCachedMetaInfo(metaInfo);
       }
     } catch (error) {
       return NextResponse.json(

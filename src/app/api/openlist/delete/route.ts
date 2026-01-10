@@ -49,8 +49,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rootPath = openListConfig.RootPath || '/';
-
     // 从数据库读取 metainfo
     const metainfoContent = await db.getGlobalValue('video.metainfo');
     if (!metainfoContent) {
@@ -78,8 +76,8 @@ export async function POST(request: NextRequest) {
     await db.setGlobalValue('video.metainfo', updatedMetainfoContent);
 
     // 更新缓存
-    invalidateMetaInfoCache(rootPath);
-    setCachedMetaInfo(rootPath, metaInfo);
+    invalidateMetaInfoCache();
+    setCachedMetaInfo(metaInfo);
 
     // 更新配置中的资源数量
     if (config.OpenListConfig) {

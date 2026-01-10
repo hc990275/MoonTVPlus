@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rootPath = openListConfig.RootPath || '/';
     const client = new OpenListClient(
       openListConfig.URL,
       openListConfig.Username,
@@ -73,7 +72,7 @@ export async function POST(request: NextRequest) {
     );
 
     // 读取现有 metainfo (从数据库或缓存)
-    let metaInfo: MetaInfo | null = getCachedMetaInfo(rootPath);
+    let metaInfo: MetaInfo | null = getCachedMetaInfo();
 
     if (!metaInfo) {
       try {
@@ -132,8 +131,8 @@ export async function POST(request: NextRequest) {
     await db.setGlobalValue('video.metainfo', metainfoContent);
 
     // 更新缓存
-    invalidateMetaInfoCache(rootPath);
-    setCachedMetaInfo(rootPath, metaInfo);
+    invalidateMetaInfoCache();
+    setCachedMetaInfo(metaInfo);
 
     return NextResponse.json({
       success: true,

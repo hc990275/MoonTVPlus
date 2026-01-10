@@ -105,15 +105,14 @@ export async function GET(request: NextRequest) {
             const { getTMDBImageUrl } = await import('@/lib/tmdb.search');
             const { db } = await import('@/lib/db');
 
-            const rootPath = config.OpenListConfig!.RootPath || '/';
-            let metaInfo = getCachedMetaInfo(rootPath);
+            let metaInfo = getCachedMetaInfo();
 
             if (!metaInfo) {
               const metainfoJson = await db.getGlobalValue('video.metainfo');
               if (metainfoJson) {
                 metaInfo = JSON.parse(metainfoJson);
                 if (metaInfo) {
-                  setCachedMetaInfo(rootPath, metaInfo);
+                  setCachedMetaInfo(metaInfo);
                 }
               }
             }

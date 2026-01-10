@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'OpenList 未配置或未启用' }, { status: 400 });
     }
 
-    const rootPath = openListConfig.RootPath || '/';
-    const folderPath = `${rootPath}${rootPath.endsWith('/') ? '' : '/'}${folder}`;
+    // folder 已经是完整路径，直接使用
+    const folderPath = folder;
     const client = new OpenListClient(
       openListConfig.URL,
       openListConfig.Username,

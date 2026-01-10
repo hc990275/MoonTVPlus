@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { action, Enabled, URL, Username, Password, RootPath, OfflineDownloadPath, ScanInterval, ScanMode } = body;
+    const { action, Enabled, URL, Username, Password, RootPaths, OfflineDownloadPath, ScanInterval, ScanMode } = body;
 
     const authInfo = getAuthInfoFromCookie(request);
     if (!authInfo || !authInfo.username) {
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           URL: URL || '',
           Username: Username || '',
           Password: Password || '',
-          RootPath: RootPath || '/',
+          RootPaths: RootPaths || ['/'],
           OfflineDownloadPath: OfflineDownloadPath || '/',
           LastRefreshTime: adminConfig.OpenListConfig?.LastRefreshTime,
           ResourceCount: adminConfig.OpenListConfig?.ResourceCount,
@@ -73,6 +73,14 @@ export async function POST(request: NextRequest) {
       if (!URL || !Username || !Password) {
         return NextResponse.json(
           { error: '请提供 URL、账号和密码' },
+          { status: 400 }
+        );
+      }
+
+      // 验证 RootPaths
+      if (!Array.isArray(RootPaths) || RootPaths.length === 0) {
+        return NextResponse.json(
+          { error: '请至少提供一个根目录' },
           { status: 400 }
         );
       }
@@ -104,7 +112,7 @@ export async function POST(request: NextRequest) {
         URL,
         Username,
         Password,
-        RootPath: RootPath || '/',
+        RootPaths,
         OfflineDownloadPath: OfflineDownloadPath || '/',
         LastRefreshTime: adminConfig.OpenListConfig?.LastRefreshTime,
         ResourceCount: adminConfig.OpenListConfig?.ResourceCount,

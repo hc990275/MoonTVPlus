@@ -76,7 +76,7 @@ export async function GET(
     const { getCachedMetaInfo, setCachedMetaInfo } = await import('@/lib/openlist-cache');
     const { db } = await import('@/lib/db');
 
-    let metaInfo = getCachedMetaInfo(rootPath);
+    let metaInfo = getCachedMetaInfo();
 
     if (!metaInfo) {
       try {
@@ -84,7 +84,7 @@ export async function GET(
         if (metainfoJson) {
           metaInfo = JSON.parse(metainfoJson);
           if (metaInfo) {
-            setCachedMetaInfo(rootPath, metaInfo);
+            setCachedMetaInfo(metaInfo);
           }
         }
       } catch (error) {

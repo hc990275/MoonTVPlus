@@ -45,13 +45,13 @@ export async function GET(request: NextRequest) {
         const { getCachedMetaInfo, setCachedMetaInfo } = await import('@/lib/openlist-cache');
         const { db } = await import('@/lib/db');
 
-        metaInfo = getCachedMetaInfo(rootPath);
+        metaInfo = getCachedMetaInfo();
 
         if (!metaInfo) {
           const metainfoJson = await db.getGlobalValue('video.metainfo');
           if (metainfoJson) {
             metaInfo = JSON.parse(metainfoJson);
-            setCachedMetaInfo(rootPath, metaInfo);
+            setCachedMetaInfo(metaInfo);
           }
         }
 

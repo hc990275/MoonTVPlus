@@ -2763,7 +2763,7 @@ const OpenListConfigComponent = ({
   const [url, setUrl] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rootPath, setRootPath] = useState('/');
+  const [rootPaths, setRootPaths] = useState<string[]>(['/']);
   const [offlineDownloadPath, setOfflineDownloadPath] = useState('/');
   const [scanInterval, setScanInterval] = useState(0);
   const [scanMode, setScanMode] = useState<'torrent' | 'name' | 'hybrid'>('hybrid');
@@ -2783,7 +2783,7 @@ const OpenListConfigComponent = ({
       setUrl(config.OpenListConfig.URL || '');
       setUsername(config.OpenListConfig.Username || '');
       setPassword(config.OpenListConfig.Password || '');
-      setRootPath(config.OpenListConfig.RootPath || '/');
+      setRootPaths(config.OpenListConfig.RootPaths || (config.OpenListConfig.RootPath ? [config.OpenListConfig.RootPath] : ['/']));
       setOfflineDownloadPath(config.OpenListConfig.OfflineDownloadPath || '/');
       setScanInterval(config.OpenListConfig.ScanInterval || 0);
       setScanMode(config.OpenListConfig.ScanMode || 'hybrid');
@@ -2824,7 +2824,7 @@ const OpenListConfigComponent = ({
             URL: url,
             Username: username,
             Password: password,
-            RootPath: rootPath,
+            RootPaths: rootPaths,
             OfflineDownloadPath: offlineDownloadPath,
             ScanInterval: scanInterval,
             ScanMode: scanMode,
@@ -3104,18 +3104,49 @@ const OpenListConfigComponent = ({
 
         <div>
           <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-            根目录
+            根目录列表
           </label>
-          <input
-            type='text'
-            value={rootPath}
-            onChange={(e) => setRootPath(e.target.value)}
-            disabled={!enabled}
-            placeholder='/'
-            className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
-          />
+          <div className='space-y-2'>
+            {rootPaths.map((path, index) => (
+              <div key={index} className='flex gap-2'>
+                <input
+                  type='text'
+                  value={path}
+                  onChange={(e) => {
+                    const newPaths = [...rootPaths];
+                    newPaths[index] = e.target.value;
+                    setRootPaths(newPaths);
+                  }}
+                  disabled={!enabled}
+                  placeholder='/'
+                  className='flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
+                />
+                {rootPaths.length > 1 && (
+                  <button
+                    type='button'
+                    onClick={() => {
+                      const newPaths = rootPaths.filter((_, i) => i !== index);
+                      setRootPaths(newPaths);
+                    }}
+                    disabled={!enabled}
+                    className='px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed'
+                  >
+                    删除
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type='button'
+              onClick={() => setRootPaths([...rootPaths, '/'])}
+              disabled={!enabled}
+              className='w-full px-3 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
+            >
+              + 添加根目录
+            </button>
+          </div>
           <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
-            OpenList 中的视频文件夹路径，默认为根目录 /
+            OpenList 中的视频文件夹路径，可以配置多个根目录
           </p>
         </div>
 

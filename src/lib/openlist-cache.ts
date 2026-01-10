@@ -49,28 +49,30 @@ export interface VideoInfo {
   last_updated: number;
 }
 
-// MetaInfo 缓存操作
-export function getCachedMetaInfo(rootPath: string): MetaInfo | null {
-  const entry = METAINFO_CACHE.get(rootPath);
+// MetaInfo 缓存操作（使用固定键）
+const METAINFO_CACHE_KEY = 'openlist_meta';
+
+export function getCachedMetaInfo(): MetaInfo | null {
+  const entry = METAINFO_CACHE.get(METAINFO_CACHE_KEY);
   if (!entry) return null;
 
   if (entry.expiresAt <= Date.now()) {
-    METAINFO_CACHE.delete(rootPath);
+    METAINFO_CACHE.delete(METAINFO_CACHE_KEY);
     return null;
   }
 
   return entry.data;
 }
 
-export function setCachedMetaInfo(rootPath: string, data: MetaInfo): void {
-  METAINFO_CACHE.set(rootPath, {
+export function setCachedMetaInfo(data: MetaInfo): void {
+  METAINFO_CACHE.set(METAINFO_CACHE_KEY, {
     expiresAt: Date.now() + METAINFO_CACHE_TTL_MS,
     data,
   });
 }
 
-export function invalidateMetaInfoCache(rootPath: string): void {
-  METAINFO_CACHE.delete(rootPath);
+export function invalidateMetaInfoCache(): void {
+  METAINFO_CACHE.delete(METAINFO_CACHE_KEY);
 }
 
 // VideoInfo 缓存操作
