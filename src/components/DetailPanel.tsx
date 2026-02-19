@@ -1050,10 +1050,10 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
                             {actor.profile_path ? (
                               <div
                                 className="relative w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 mb-2 cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => handleImageClick(processImageUrl(getTMDBImageUrl(actor.profile_path, 'w185')))}
+                                onClick={() => handleImageClick(processImageUrl(getTMDBImageUrl(actor.profile_path || null, 'w185')))}
                               >
                                 <Image
-                                  src={processImageUrl(getTMDBImageUrl(actor.profile_path, 'w185'))}
+                                  src={processImageUrl(getTMDBImageUrl(actor.profile_path || null, 'w185'))}
                                   alt={actor.name}
                                   fill
                                   className="object-cover"

@@ -124,7 +124,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
         </div>
       {loading ? (
         // 加载状态显示灰色占位数据（使用原始 ScrollableRow）
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pt-2 pb-2">
           {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}
@@ -140,41 +140,98 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
         </div>
       ) : (
         // 使用虚拟滚动显示真实数据
-        <VirtualScrollableRow>
-          {playRecords.map((record) => {
-            const { source, id } = parseKey(record.key);
-            return (
-              <div
-                key={record.key}
-                className='min-w-[180px] w-48 sm:min-w-[200px] sm:w-52'
-              >
-                <VideoCard
-                  id={id}
-                  title={record.title}
-                  poster={record.cover}
-                  year={record.year}
-                  source={source}
-                  source_name={record.source_name}
-                  progress={getProgress(record)}
-                  episodes={record.total_episodes}
-                  currentEpisode={record.index}
-                  query={record.search_title}
-                  from='playrecord'
-                  onDelete={() =>
-                    setPlayRecords((prev) =>
-                      prev.filter((r) => r.key !== record.key)
-                    )
-                  }
-                  type={record.total_episodes > 1 ? 'tv' : ''}
-                  origin={record.origin}
-                  orientation='horizontal'
-                  playTime={record.play_time}
-                  totalTime={record.total_time}
-                />
-              </div>
-            );
-          })}
-        </VirtualScrollableRow>
+        <div>
+          <VirtualScrollableRow>
+            {playRecords.map((record) => {
+              const { source, id } = parseKey(record.key);
+              return (
+                <div
+                  key={record.key}
+                  className='min-w-[180px] w-48 sm:min-w-[200px] sm:w-52'
+                  style={{ position: 'relative' }}
+                >
+                  <VideoCard
+                    id={id}
+                    title={record.title}
+                    poster={record.cover}
+                    year={record.year}
+                    source={source}
+                    source_name={record.source_name}
+                    progress={getProgress(record)}
+                    episodes={record.total_episodes}
+                    currentEpisode={record.index}
+                    query={record.search_title}
+                    from='playrecord'
+                    onDelete={() =>
+                      setPlayRecords((prev) =>
+                        prev.filter((r) => r.key !== record.key)
+                      )
+                    }
+                    type={record.total_episodes > 1 ? 'tv' : ''}
+                    origin={record.origin}
+                    orientation='horizontal'
+                    playTime={record.play_time}
+                    totalTime={record.total_time}
+                  />
+                  {/* 新增剧集提示 - 完全独立于 VideoCard */}
+                  {record.new_episodes && record.new_episodes > 0 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-6px',
+                        right: '-6px',
+                        zIndex: 100,
+                        pointerEvents: 'none',
+                        width: '28px',
+                        height: '28px',
+                      }}
+                    >
+                      {/* 水波纹动画 - 第一层 */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: '0',
+                          borderRadius: '9999px',
+                          backgroundColor: 'rgb(14 165 233)',
+                          animation: 'ping-scale 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+                        }}
+                      />
+                      {/* 水波纹动画 - 第二层 */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: '0',
+                          borderRadius: '9999px',
+                          backgroundColor: 'rgb(14 165 233)',
+                          animation: 'pulse-scale 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        }}
+                      />
+                      {/* 主体徽章 */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: '0',
+                          borderRadius: '9999px',
+                          background: 'linear-gradient(to bottom right, rgb(14 165 233), rgb(2 132 199))',
+                          color: 'white',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                          animation: 'badge-scale 2s ease-in-out infinite',
+                        }}
+                      >
+                        +{record.new_episodes}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </VirtualScrollableRow>
+        </div>
       )}
     </section>
 

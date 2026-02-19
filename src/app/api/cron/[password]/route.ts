@@ -216,6 +216,14 @@ async function refreshRecordAndFavorites() {
 
             const episodeCount = detail.episodes?.length || 0;
             if (episodeCount > 0 && episodeCount !== record.total_episodes) {
+              // 计算新增的剧集数量
+              const newEpisodesCount = episodeCount > record.total_episodes
+                ? episodeCount - record.total_episodes
+                : 0;
+
+              // 如果有新增剧集，累加到现有的 new_episodes 字段
+              const updatedNewEpisodes = (record.new_episodes || 0) + newEpisodesCount;
+
               await db.savePlayRecord(user, source, id, {
                 title: detail.title || record.title,
                 source_name: record.source_name,
@@ -227,9 +235,10 @@ async function refreshRecordAndFavorites() {
                 total_time: record.total_time,
                 save_time: record.save_time,
                 search_title: record.search_title,
+                new_episodes: updatedNewEpisodes > 0 ? updatedNewEpisodes : undefined,
               });
               console.log(
-                `更新播放记录: ${record.title} (${record.total_episodes} -> ${episodeCount})`
+                `更新播放记录: ${record.title} (${record.total_episodes} -> ${episodeCount}, 新增 ${newEpisodesCount} 集)`
               );
             }
 
