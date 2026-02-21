@@ -3016,37 +3016,15 @@ export const UserMenu: React.FC = () => {
                     </p>
                     <div className='flex flex-wrap gap-2'>
                       <a
-                        href='https://github.com/mtvpls/MoonTVPlus/releases/tag/Selene_Beta4'
+                        href='https://github.com/mtvpls/Selene-Build/releases'
                         target='_blank'
                         rel='noopener noreferrer'
                         className='inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors'
                       >
                         <Download className='w-4 h-4' />
-                        安卓下载
+                        下载
                         <ExternalLink className='w-3 h-3' />
                       </a>
-                      <button
-                        onClick={() => {
-                          const ua = navigator.userAgent.toLowerCase();
-                          let targetUrl = 'https://github.com/mtvpls/Selene-Build/actions/workflows/build.yml';
-
-                          // 根据 UA 判断平台
-                          if (ua.includes('windows')) {
-                            targetUrl = 'https://github.com/mtvpls/Selene-Build/actions/workflows/build.yml';
-                          } else if (ua.includes('mac')) {
-                            targetUrl = 'https://github.com/mtvpls/Selene-Build/actions/workflows/build.yml';
-                          } else if (ua.includes('linux')) {
-                            targetUrl = 'https://github.com/mtvpls/Selene-Build/actions/workflows/build.yml';
-                          }
-
-                          window.open(targetUrl, '_blank');
-                        }}
-                        className='inline-flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium rounded-lg transition-colors'
-                      >
-                        <Download className='w-4 h-4' />
-                        其他平台
-                        <ExternalLink className='w-3 h-3' />
-                      </button>
                     </div>
                   </div>
                 </div>
